@@ -1,0 +1,73 @@
+/*
+ * Copyright (c) 2006-2023, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author       Notes
+ * 2023-09-01     RT-Thread    first version
+ */
+
+#include <rtthread.h>
+
+
+static rt_thread_t tid1 = RT_NULL;
+static struct rt_thread thread2;
+
+//entry of thread1
+static void thread1_entry(void *parameter)
+{
+    rt_uint32_t count = 0;
+    while(1)
+    {
+        rt_kprintf("thread1 count &d\n",count++);
+        rt_thread_delay(500);
+
+    }
+}
+
+//entry of thread 2
+static char thread2_strck[1024];
+static void thread2_entry(void *param)
+{
+    rt_uint32_t count=0;
+    for(count=0;count<10;count++)
+    {
+        rt_kprintf("thread2 count :%d\n",count);
+
+    }
+    rt_kprintf("thread2 exit\n");
+}
+
+
+
+int thread_sample(void)
+{
+//    create thread 1
+    tid1 = rt_thread_create("thread1",
+            thread1_entry,RT_NULL,
+            512,
+            25,
+            5);
+
+    if(tid1 != RT_NULL)
+    {
+        rt_thread_startup(tid1);
+    }
+//        create thread2
+
+    rt_thread_init(&thread2,
+            "rtthread2",
+            thread2_entry,
+            RT_NULL,
+            &thread2_strck[0],
+            sizeof(thread2_strck),
+            24,
+            5);
+    rt_thread_startup(&thread2);
+    return 0;
+}
+
+MSH_CMD_EXPORT(thread_sample,thread sample);
+
+
